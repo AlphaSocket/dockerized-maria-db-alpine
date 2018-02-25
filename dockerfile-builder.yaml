@@ -48,6 +48,10 @@ config:
     paths:
       data: 
         mariadb: /var/lib/mysql
+      templates:
+        mariadb:
+          init:
+            valueFromParse: "$BUILD_PATHS_TEMPLATES/init.sql"
       config:
         mariadb: /etc/mysql
         mariadb_main:
@@ -62,6 +66,7 @@ config:
         pass: defaultUserPass
         db:
           name: defaultDbName
+          charset: utf8mb4
           encoding: utf8mb4_unicode_ci
   processes:
     - title: "Configure server"
@@ -84,13 +89,15 @@ config:
       commands:
         - mysql_install_db --datadir="$CONFIG_PATHS_DATA_MARIADB" --rpm
     
-    - title: 'Start deamon to init and apply init sql'
+    - title: 'Start deamon to apply init sql'
       commands:
+        - mkdir -p /run/mysqld/
+        - chown -R ${CONFIG_USERS_MAIN_NAME}:${CONFIG_GROUPS_MAIN_NAME} /run/mysqld
         - mysqld --skip-networking --socket='/run/mysqld/mysqld.sock' & pid="$!"
     
     - title: "Wait until the DB is ready"
       commands:
-        - MARIADB_INIT_LOGIN="mysql --protocol=socket -uroot -hlocalhost --socket='/run/mysqld/mysqld.sock'"
+        - MARIADB_INIT_LOGIN="mysql --protocol=socket -uroot --socket=/run/mysqld/mysqld.sock"
         #- CONDITION=" echo "SELECT 1 LIMIT 0" | $MARIADB_INIT_LOGIN"
         - CONDITION="$MARIADB_INIT_LOGIN"
         - ERROR='MariaDb init process failed.'
@@ -106,7 +113,8 @@ config:
         
     - title: "Run init sql"
       commands:
-        - echo "${CONFIG_PATHS_TEMPLATES_MARIADB_INIT}" | envsubst | $MARIADB_INIT_LOGIN
+        - BUILD_PATHS_TEMPLATES
+        - cat "${CONFIG_PATHS_TEMPLATES_MARIADB_INIT}" | envsubst | "$MARIADB_INIT_LOGIN"
         - if ! kill "$pid" || ! wait "$pid"; then
             echo 'MariaDb init process failed.';
             exit 1;
