@@ -17,7 +17,10 @@ build:
       main:
         valueFromParse: $BUILD_MARIADB_PORT
     cmd: mysqld
-
+    paths:
+        templates: /usr/local/templates
+  imports:
+    - imports/templates:$BUILD_PATHS_TEMPLATES
 #
 # Setup process injected in dockerfile
 #
@@ -48,7 +51,7 @@ config:
       config:
         mariadb: /etc/mysql
         mariadb_main:
-          valueFromParse: $CONFIG_PATHS_CONFIG_MARIADB/my.conf
+          valueFromParse: $CONFIG_PATHS_CONFIG_MARIADB/my.cnf
     mariadb:
       server:
         max_allowed_packet: 32M
@@ -60,7 +63,6 @@ config:
         db:
           name: defaultDbName
           encoding: utf8mb4_unicode_ci
-
   processes:
     - title: "Configure server"
       commands:
@@ -72,15 +74,46 @@ config:
         # Max packets
         - sed -i "s|max_allowed_packet\s*=\s*1M|max_allowed_packet = ${CONFIG_MARIADB_SERVER_MAX_ALLOWED_PACKET}|g" ${CONFIG_PATHS_CONFIG_MARIADB_MAIN}
         - sed -i "s|max_allowed_packet\s*=\s*16M|max_allowed_packet = ${CONFIG_MARIADB_SERVER_MAX_ALLOWED_PACKET}|g" ${CONFIG_PATHS_CONFIG_MARIADB_MAIN}
-
-    - title: "Enforce permissions on data"
+        
+    - title: "Create and enforce permissions on data"
       commands:
-       - chown -R ${CONFIG_USERS_MAIN_NAME}:${CONFIG_GROUPS_MAIN_NAME} ${CONFIG_PATHS_DATA_MARIADB}
+        - mkdir -p "${CONFIG_PATHS_DATA_MARIADB}"
+        - chown -R ${CONFIG_USERS_MAIN_NAME}:${CONFIG_GROUPS_MAIN_NAME} ${CONFIG_PATHS_DATA_MARIADB}
 
-    - title: "Add initial data"
+    - title: 'Initializing internal databases'
       commands:
+        - mysql_install_db --datadir="$CONFIG_PATHS_DATA_MARIADB" --rpm
+    
+    - title: 'Start deamon to init and apply init sql'
+      commands:
+        - mysqld --skip-networking --socket='/run/mysqld/mysqld.sock' & pid="$!"
+    
+    - title: "Wait until the DB is ready"
+      commands:
+        - MARIADB_INIT_LOGIN="mysql --protocol=socket -uroot -hlocalhost --socket='/run/mysqld/mysqld.sock'"
+        #- CONDITION=" echo "SELECT 1 LIMIT 0" | $MARIADB_INIT_LOGIN"
+        - CONDITION="$MARIADB_INIT_LOGIN"
+        - ERROR='MariaDb init process failed.'
+        - MAX_TRIES=300
+        - SECONDS_BETWEEN_TRIES=1
+        - c=0
+        - while ! eval "$CONDITION"; 
+          do 
+            if [ $c -ge ${MAX_TRIES} ]; then echo $ERROR; exit 1; else c=$(($c + 1)); fi;
+            echo "Waiting for db.. Try $c failed"; 
+            sleep ${SECONDS_BETWEEN_TRIES}; 
+          done
+        
+    - title: "Run init sql"
+      commands:
+        - echo "${CONFIG_PATHS_TEMPLATES_MARIADB_INIT}" | envsubst | $MARIADB_INIT_LOGIN
+        - if ! kill "$pid" || ! wait "$pid"; then
+            echo 'MariaDb init process failed.';
+            exit 1;
+          fi
+        #- mysqladmin -u root password "${CONFIG_MARIADB_ROOT_PASS}"
         #- mysql_install_db --user=${CONFIG_MARIADB_DEFAULT_USER} --datadir=${CONFIG_PATHS_DATA_MARIADB}
-        - mysqladmin -u root password "${CONFIG_MARIADB_ROOT_PASS}"
+    
 test:
   processes:
     #
