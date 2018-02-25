@@ -80,10 +80,12 @@ config:
         - sed -i "s|max_allowed_packet\s*=\s*1M|max_allowed_packet = ${CONFIG_MARIADB_SERVER_MAX_ALLOWED_PACKET}|g" ${CONFIG_PATHS_CONFIG_MARIADB_MAIN}
         - sed -i "s|max_allowed_packet\s*=\s*16M|max_allowed_packet = ${CONFIG_MARIADB_SERVER_MAX_ALLOWED_PACKET}|g" ${CONFIG_PATHS_CONFIG_MARIADB_MAIN}
         
-    - title: "Create and enforce permissions on data"
+    - title: "Create and enforce permissions on data and sockets"
       commands:
         - mkdir -p "${CONFIG_PATHS_DATA_MARIADB}"
         - chown -R ${CONFIG_USERS_MAIN_NAME}:${CONFIG_GROUPS_MAIN_NAME} ${CONFIG_PATHS_DATA_MARIADB}
+        - mkdir -p /run/mysqld
+        - chown -R /run/mysqld
 
     - title: 'Initializing internal databases'
       commands:
@@ -91,15 +93,14 @@ config:
     
     - title: 'Start deamon to apply init sql'
       commands:
-        - SERVER_SOCKER_FOLDER='/run/mysqld'
-        - SERVER_SOCKER_PATH="SERVER_SOCKER_FOLDER/mysqld.sock"
-        - mkdir -p "$SERVER_SOCKER_FOLDER/"
-        - chown -R ${CONFIG_USERS_MAIN_NAME}:${CONFIG_GROUPS_MAIN_NAME} "$SERVER_SOCKER_FOLDER"
-        - mysqld --skip-networking --socket="$SERVER_SOCKER_PATH" & pid="$!"
+        - SERVER_SOCKET_NAME='mysqld.sock'
+        - SERVER_SOCKET_FOLDER='/var/lib/mysql'
+        - SERVER_SOCKET_PATH="$SERVER_SOCKET_FOLDER/$SERVER_SOCKET_NAME"
+        - mysqld --skip-networking --socket="$SERVER_SOCKET_NAME" & pid="$!"
     
     - title: "Wait until the DB is ready"
       commands:
-        - MARIADB_INIT_LOGIN="mysql --protocol=socket -uroot --socket=$SERVER_SOCKER_PATH"
+        - MARIADB_INIT_LOGIN="mysql --protocol=socket -uroot --socket=${SERVER_SOCKET_PATH}"
         - CONDITION="echo 'SELECT 1;' | $MARIADB_INIT_LOGIN "
         - CONDITION="$MARIADB_INIT_LOGIN"
         - ERROR='MariaDb init process failed.'
@@ -115,13 +116,13 @@ config:
         
     - title: "Run init sql"
       commands:
-        - cat "${CONFIG_PATHS_TEMPLATES_MARIADB_INIT}" | envsubst | "$MARIADB_INIT_LOGIN"
-        - if ! kill "$pid" || ! wait "$pid"; then
+        - cat "${CONFIG_PATHS_TEMPLATES_MARIADB_INIT}" | envsubst | $MARIADB_INIT_LOGIN
+        - kill "$pid"
+        - if [ -f $SERVER_SOCKET_PATH ]; then
             echo 'MariaDb init process failed.';
+            echo 'Socket not released.';
             exit 1;
           fi
-        #- mysqladmin -u root password "${CONFIG_MARIADB_ROOT_PASS}"
-        #- mysql_install_db --user=${CONFIG_MARIADB_DEFAULT_USER} --datadir=${CONFIG_PATHS_DATA_MARIADB}
     
 test:
   processes:
