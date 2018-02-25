@@ -29,6 +29,7 @@ mysqld --skip-networking --socket='/run/mysqld/mysqld.sock' & pid="$!"
 # Wait until the DB is ready
 echo "### Wait until the DB is ready..."
 MARIADB_INIT_LOGIN="mysql --protocol=socket -uroot --socket=/run/mysqld/mysqld.sock"
+CONDITION="echo 'SELECT 1;' | $MARIADB_INIT_LOGIN "
 CONDITION="$MARIADB_INIT_LOGIN"
 ERROR='MariaDb init process failed.'
 MAX_TRIES=300
@@ -38,7 +39,6 @@ while ! eval "$CONDITION"; do if [ $c -ge ${MAX_TRIES} ]; then echo $ERROR; exit
 
 # Run init sql
 echo "### Run init sql..."
-BUILD_PATHS_TEMPLATES
 cat "${CONFIG_PATHS_TEMPLATES_MARIADB_INIT}" | envsubst | "$MARIADB_INIT_LOGIN"
 if ! kill "$pid" || ! wait "$pid"; then echo 'MariaDb init process failed.'; exit 1; fi
 

@@ -98,7 +98,7 @@ config:
     - title: "Wait until the DB is ready"
       commands:
         - MARIADB_INIT_LOGIN="mysql --protocol=socket -uroot --socket=/run/mysqld/mysqld.sock"
-        #- CONDITION=" echo "SELECT 1 LIMIT 0" | $MARIADB_INIT_LOGIN"
+        - CONDITION="echo 'SELECT 1;' | $MARIADB_INIT_LOGIN "
         - CONDITION="$MARIADB_INIT_LOGIN"
         - ERROR='MariaDb init process failed.'
         - MAX_TRIES=300
@@ -113,7 +113,6 @@ config:
         
     - title: "Run init sql"
       commands:
-        - BUILD_PATHS_TEMPLATES
         - cat "${CONFIG_PATHS_TEMPLATES_MARIADB_INIT}" | envsubst | "$MARIADB_INIT_LOGIN"
         - if ! kill "$pid" || ! wait "$pid"; then
             echo 'MariaDb init process failed.';
