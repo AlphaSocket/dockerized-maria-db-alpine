@@ -84,8 +84,8 @@ config:
       commands:
         - mkdir -p "${CONFIG_PATHS_DATA_MARIADB}"
         - chown -R ${CONFIG_USERS_MAIN_NAME}:${CONFIG_GROUPS_MAIN_NAME} ${CONFIG_PATHS_DATA_MARIADB}
-        - mkdir -p /run/mysqld
-        - chown -R /run/mysqld
+        - mkdir -p "/run/mysqld/"
+        - chown -R ${CONFIG_USERS_MAIN_NAME}:${CONFIG_GROUPS_MAIN_NAME} "/run/mysqld/"
 
     - title: 'Initializing internal databases'
       commands:

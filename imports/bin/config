@@ -15,8 +15,8 @@ sed -i "s|max_allowed_packet\s*=\s*16M|max_allowed_packet = ${CONFIG_MARIADB_SER
 echo "### Create and enforce permissions on data and sockets..."
 mkdir -p "${CONFIG_PATHS_DATA_MARIADB}"
 chown -R ${CONFIG_USERS_MAIN_NAME}:${CONFIG_GROUPS_MAIN_NAME} ${CONFIG_PATHS_DATA_MARIADB}
-mkdir -p /run/mysqld
-chown -R /run/mysqld
+mkdir -p "/run/mysqld/"
+chown -R ${CONFIG_USERS_MAIN_NAME}:${CONFIG_GROUPS_MAIN_NAME} "/run/mysqld/"
 
 # Initializing internal databases
 echo "### Initializing internal databases..."
