@@ -31,14 +31,14 @@ echo "# Cleaned"
 echo "#\n# Running test\n#\n"
 # Testing container readiness
 echo "### Testing container readiness..."
-TEST_CONTAINER_MAIN_ID=$( docker run -d --name=mariad-db-alpine -p 30863:3306 03192859189254/mariad-db-alpine:latest )
+TEST_CONTAINER_MAIN_ID=$( docker run -d --name=mariad-db-alpine -p 31947:3306 03192859189254/mariad-db-alpine:latest )
 TEST_CONDITION="docker exec $TEST_CONTAINER_MAIN_ID docker-rediness-test"
 TEST_BREAK_CONDITION='[ "$(docker inspect -f '{{.State.Running}}' "$TEST_CONTAINER_MAIN_ID")" != "true" ]'
 MAX_TRIES=300
 SECONDS_BETWEEN_TRIES=1
 c=0
 while ! eval "$TEST_CONDITION"; do if [ $c -ge ${MAX_TRIES} ] || eval "$TEST_BREAK_CONDITION" ; then echo "Error mariad-db-alpine container failed, printing logs and exiting\n"; docker logs $TEST_CONTAINER_MAIN_ID; exit 1; else c=$(($c + 1)); fi; echo "Try $c failed"; sleep ${SECONDS_BETWEEN_TRIES}; done && echo "### Container ready \n"
-echo "SHOW DATABASES;" | mysql -udefaultUser -pdefaultUserPass defaultDbName
+echo "SHOW DATABASES;" | mysql -udefaultUser -pdefaultUserPass -h127.0.0.1 defaultDbName
 
 
 
