@@ -50,6 +50,7 @@ ENV \
 	CONFIG_USERS_MAIN_GROUPS="mariadb" \
 	CONFIG_PATHS_CONTAINER_STATUS="/tmp/container_status" \
 	CONFIG_PATHS_DATA_MARIADB="/var/lib/mysql" \
+	CONFIG_PATHS_TEMPLATES_MARIADB_INIT="/usr/local/templates/init.sql" \
 	CONFIG_PATHS_CONFIG_MARIADB="/etc/mysql" \
 	CONFIG_PATHS_CONFIG_MARIADB_MAIN="/etc/mysql/my.cnf" \
 	CONFIG_MARIADB_SERVER_MAX_ALLOWED_PACKET="32M" \
@@ -57,19 +58,20 @@ ENV \
 	CONFIG_MARIADB_DEFAULT_USER="defaultUser" \
 	CONFIG_MARIADB_DEFAULT_PASS="defaultUserPass" \
 	CONFIG_MARIADB_DEFAULT_DB_NAME="defaultDbName" \
+	CONFIG_MARIADB_DEFAULT_DB_CHARSET="utf8mb4" \
 	CONFIG_MARIADB_DEFAULT_DB_ENCODING="utf8mb4_unicode_ci"
 ADD imports/bin/docker-config /usr/local/bin/docker-config
 ADD imports/bin/docker-run /usr/local/bin/docker-run
 ADD imports/bin/docker-rediness-test /usr/local/bin/docker-rediness-test
 ADD imports/bin/docker-liveness-test /usr/local/bin/docker-liveness-test
-ADD imports/bin/setup /usr/local/bin/setup/1519584942
-ADD imports/bin/config /usr/local/bin/config/1519584942
+ADD imports/bin/setup /usr/local/bin/setup/1519585022
+ADD imports/bin/config /usr/local/bin/config/1519585022
 ADD imports/templates/init.sql /usr/local/templates/init.sql
 
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1519584942 1>/dev/stdout 2>/dev/stderr
+    /usr/local/bin/setup/1519585022 1>/dev/stdout 2>/dev/stderr
 
 EXPOSE 3306 
 
