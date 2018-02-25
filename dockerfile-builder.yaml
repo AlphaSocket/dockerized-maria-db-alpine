@@ -91,13 +91,15 @@ config:
     
     - title: 'Start deamon to apply init sql'
       commands:
-        - mkdir -p /run/mysqld/
-        - chown -R ${CONFIG_USERS_MAIN_NAME}:${CONFIG_GROUPS_MAIN_NAME} /run/mysqld
-        - mysqld --skip-networking --socket='/run/mysqld/mysqld.sock' & pid="$!"
+        - SERVER_SOCKER_FOLDER='/run/mysqld'
+        - SERVER_SOCKER_PATH="SERVER_SOCKER_FOLDER/mysqld.sock"
+        - mkdir -p "$SERVER_SOCKER_FOLDER/"
+        - chown -R ${CONFIG_USERS_MAIN_NAME}:${CONFIG_GROUPS_MAIN_NAME} "$SERVER_SOCKER_FOLDER"
+        - mysqld --skip-networking --socket="$SERVER_SOCKER_PATH" & pid="$!"
     
     - title: "Wait until the DB is ready"
       commands:
-        - MARIADB_INIT_LOGIN="mysql --protocol=socket -uroot --socket=/run/mysqld/mysqld.sock"
+        - MARIADB_INIT_LOGIN="mysql --protocol=socket -uroot --socket=$SERVER_SOCKER_PATH"
         - CONDITION="echo 'SELECT 1;' | $MARIADB_INIT_LOGIN "
         - CONDITION="$MARIADB_INIT_LOGIN"
         - ERROR='MariaDb init process failed.'
