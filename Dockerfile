@@ -29,6 +29,7 @@ ENV \
 	BUILD_PORTS_ADDITIONAL="" \
 	BUILD_PORTS_MAIN="3306" \
 	BUILD_CMD="mysqld" \
+	BUILD_PATHS_TEMPLATES="/usr/local/templates" \
 	SETUP_PATHS_BINARIES="/usr/local/bin" \
 	SETUP_PATHS_SETUP="/usr/local/bin/setup" \
 	SETUP_PATHS_CONFIG="/usr/local/bin/config" \
@@ -50,7 +51,7 @@ ENV \
 	CONFIG_PATHS_CONTAINER_STATUS="/tmp/container_status" \
 	CONFIG_PATHS_DATA_MARIADB="/var/lib/mysql" \
 	CONFIG_PATHS_CONFIG_MARIADB="/etc/mysql" \
-	CONFIG_PATHS_CONFIG_MARIADB_MAIN="/etc/mysql/my.conf" \
+	CONFIG_PATHS_CONFIG_MARIADB_MAIN="/etc/mysql/my.cnf" \
 	CONFIG_MARIADB_SERVER_MAX_ALLOWED_PACKET="32M" \
 	CONFIG_MARIADB_ROOT_PASS="rootPass" \
 	CONFIG_MARIADB_DEFAULT_USER="defaultUser" \
@@ -61,13 +62,14 @@ ADD imports/bin/docker-config /usr/local/bin/docker-config
 ADD imports/bin/docker-run /usr/local/bin/docker-run
 ADD imports/bin/docker-rediness-test /usr/local/bin/docker-rediness-test
 ADD imports/bin/docker-liveness-test /usr/local/bin/docker-liveness-test
-ADD imports/bin/setup /usr/local/bin/setup/1519569942
-ADD imports/bin/config /usr/local/bin/config/1519569942
+ADD imports/bin/setup /usr/local/bin/setup/1519581694
+ADD imports/bin/config /usr/local/bin/config/1519581694
+ADD imports/templates/init.sql /usr/local/templates/init.sql
 
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1519569942 1>/dev/stdout 2>/dev/stderr
+    /usr/local/bin/setup/1519581694 1>/dev/stdout 2>/dev/stderr
 
 EXPOSE 3306 
 

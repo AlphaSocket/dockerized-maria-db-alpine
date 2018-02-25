@@ -11,13 +11,33 @@ sed -i "/^\[mysqld]$/a user=${CONFIG_USERS_MAIN_NAME}" ${CONFIG_PATHS_CONFIG_MAR
 sed -i "s|max_allowed_packet\s*=\s*1M|max_allowed_packet = ${CONFIG_MARIADB_SERVER_MAX_ALLOWED_PACKET}|g" ${CONFIG_PATHS_CONFIG_MARIADB_MAIN}
 sed -i "s|max_allowed_packet\s*=\s*16M|max_allowed_packet = ${CONFIG_MARIADB_SERVER_MAX_ALLOWED_PACKET}|g" ${CONFIG_PATHS_CONFIG_MARIADB_MAIN}
 
-# Enforce permissions on data
-echo "### Enforce permissions on data..."
+# Create and enforce permissions on data
+echo "### Create and enforce permissions on data..."
+mkdir -p "${CONFIG_PATHS_DATA_MARIADB}"
 chown -R ${CONFIG_USERS_MAIN_NAME}:${CONFIG_GROUPS_MAIN_NAME} ${CONFIG_PATHS_DATA_MARIADB}
 
-# Add initial data
-echo "### Add initial data..."
-mysqladmin -u root password "${CONFIG_MARIADB_ROOT_PASS}"
+# Initializing internal databases
+echo "### Initializing internal databases..."
+mysql_install_db --datadir="$CONFIG_PATHS_DATA_MARIADB" --rpm
+
+# Start deamon to init and apply init sql
+echo "### Start deamon to init and apply init sql..."
+mysqld --skip-networking --socket='/run/mysqld/mysqld.sock' & pid="$!"
+
+# Wait until the DB is ready
+echo "### Wait until the DB is ready..."
+MARIADB_INIT_LOGIN="mysql --protocol=socket -uroot -hlocalhost --socket='/run/mysqld/mysqld.sock'"
+CONDITION="$MARIADB_INIT_LOGIN"
+ERROR='MariaDb init process failed.'
+MAX_TRIES=300
+SECONDS_BETWEEN_TRIES=1
+c=0
+while ! eval "$CONDITION"; do if [ $c -ge ${MAX_TRIES} ]; then echo $ERROR; exit 1; else c=$(($c + 1)); fi; echo "Waiting for db.. Try $c failed"; sleep ${SECONDS_BETWEEN_TRIES}; done
+
+# Run init sql
+echo "### Run init sql..."
+echo "${CONFIG_PATHS_TEMPLATES_MARIADB_INIT}" | envsubst | $MARIADB_INIT_LOGIN
+if ! kill "$pid" || ! wait "$pid"; then echo 'MariaDb init process failed.'; exit 1; fi
 
 
 
