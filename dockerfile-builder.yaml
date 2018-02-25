@@ -1,0 +1,114 @@
+project: 
+  title: &project_title alphasocket/dockerized-maria-db-alpine
+  codename: &project_codename mariad-db-alpine
+  description: MariaDB service on alpine distro
+#
+# Build process
+# Creates dockerfile and file used in it
+#
+build:
+  envvars:
+    from: alpine:latest
+    name: *project_codename
+    # Redis
+    mariadb:        
+      port: 3306
+    ports:
+      main:
+        valueFromParse: $BUILD_MARIADB_PORT
+    cmd: mysqld
+
+#
+# Setup process injected in dockerfile
+#
+setup:
+  # Setup env 
+  envvars:
+    dependencies:
+      runtime: mariadb mariadb-client tzdata
+
+#
+# Config process run just before the entrypoint
+#
+config:
+  # Config env 
+  envvars:
+    groups:
+      main:
+        id: 1053
+        name: 'mariadb'
+    users:
+      main: 
+        id: 1053
+        name: 'mariadb'
+        groups: 'mariadb'
+    paths:
+      data: 
+        mariadb: /var/lib/mysql
+      config:
+        mariadb: /etc/mysql
+        mariadb_main:
+          valueFromParse: $CONFIG_PATHS_CONFIG_MARIADB/my.conf
+    mariadb:
+      server:
+        max_allowed_packet: 32M
+      root:
+        pass: rootPass
+      default:
+        user: defaultUser
+        pass: defaultUserPass
+        db:
+          name: defaultDbName
+          encoding: utf8mb4_unicode_ci
+
+  processes:
+    - title: "Configure server"
+      commands:
+        - sed -Ei 's/^(bind-address|log)/#&/' ${CONFIG_PATHS_CONFIG_MARIADB_MAIN}
+        # Don't reverse lookup hostnames
+        - sed -i '/^\[mysqld]$/a skip-host-cache\nskip-name-resolve' ${CONFIG_PATHS_CONFIG_MARIADB_MAIN}
+        # Set user
+        - sed -i "/^\[mysqld]$/a user=${CONFIG_USERS_MAIN_NAME}" ${CONFIG_PATHS_CONFIG_MARIADB_MAIN}
+        # Max packets
+        - sed -i "s|max_allowed_packet\s*=\s*1M|max_allowed_packet = ${CONFIG_MARIADB_SERVER_MAX_ALLOWED_PACKET}|g" ${CONFIG_PATHS_CONFIG_MARIADB_MAIN}
+        - sed -i "s|max_allowed_packet\s*=\s*16M|max_allowed_packet = ${CONFIG_MARIADB_SERVER_MAX_ALLOWED_PACKET}|g" ${CONFIG_PATHS_CONFIG_MARIADB_MAIN}
+
+    - title: "Enforce permissions on data"
+      commands:
+       - chown -R ${CONFIG_USERS_MAIN_NAME}:${CONFIG_GROUPS_MAIN_NAME} ${CONFIG_PATHS_DATA_MARIADB}
+
+    - title: "Add initial data"
+      commands:
+        #- mysql_install_db --user=${CONFIG_MARIADB_DEFAULT_USER} --datadir=${CONFIG_PATHS_DATA_MARIADB}
+        - mysqladmin -u root password "${CONFIG_MARIADB_ROOT_PASS}"
+test:
+  processes:
+    #
+    # Starting
+    #
+    - title: "Testing container readiness"
+      commands:
+        - TEST_CONTAINER_MAIN_ID=$(
+            docker run
+              -d --name=$TEST_CONTAINER_NAME
+              ${BUILD_USER}/${BUILD_NAME}:${BUILD_VERSION}
+          )
+        - TEST_CONDITION="docker exec $TEST_CONTAINER_MAIN_ID docker-rediness-test"
+        - TEST_BREAK_CONDITION='[ "$(docker inspect -f '{{.State.Running}}' "$TEST_CONTAINER_MAIN_ID")" != "true" ]'
+        - MAX_TRIES=300
+        - SECONDS_BETWEEN_TRIES=1
+        - c=0
+        - while ! eval "$TEST_CONDITION"; 
+          do 
+            if [ $c -ge ${MAX_TRIES} ] || eval "$TEST_BREAK_CONDITION" ; then
+                echo "Error $TEST_CONTAINER_NAME container failed, printing logs and exiting\n";
+                docker logs $TEST_CONTAINER_MAIN_ID;
+                exit 1;
+              else
+                c=$(($c + 1));
+            fi;
+            echo "Try $c failed"; 
+            sleep ${SECONDS_BETWEEN_TRIES}; 
+          done && echo "### Test Succeeded\n"
+        - echo "SHOW DATABASES;" | mysql -u${CONFIG_MARIADB_DEFAULT_USER} -p${CONFIG_MARIADB_DEFAULT_PASS} ${CONFIG_MARIADB_DEFAULT_DB_NAME}
+
