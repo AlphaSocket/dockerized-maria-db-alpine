@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# exit if a command fails
+set -e
+
+# Configure server
+echo "### Configure server..."
+sed -Ei 's/^(bind-address|log)/#&/' ${CONFIG_PATHS_CONFIG_MARIADB_MAIN}
+sed -i '/^\[mysqld]$/a skip-host-cache\nskip-name-resolve' ${CONFIG_PATHS_CONFIG_MARIADB_MAIN}
+sed -i "/^\[mysqld]$/a user=${CONFIG_USERS_MAIN_NAME}" ${CONFIG_PATHS_CONFIG_MARIADB_MAIN}
+sed -i "s|max_allowed_packet\s*=\s*1M|max_allowed_packet = ${CONFIG_MARIADB_SERVER_MAX_ALLOWED_PACKET}|g" ${CONFIG_PATHS_CONFIG_MARIADB_MAIN}
+sed -i "s|max_allowed_packet\s*=\s*16M|max_allowed_packet = ${CONFIG_MARIADB_SERVER_MAX_ALLOWED_PACKET}|g" ${CONFIG_PATHS_CONFIG_MARIADB_MAIN}
+
+# Enforce permissions on data
+echo "### Enforce permissions on data..."
+chown -R ${CONFIG_USERS_MAIN_NAME}:${CONFIG_GROUPS_MAIN_NAME} ${CONFIG_PATHS_DATA_MARIADB}
+
+# Add initial data
+echo "### Add initial data..."
+mysqladmin -u root password "${CONFIG_MARIADB_ROOT_PASS}"
+
+
+
+exit 0
