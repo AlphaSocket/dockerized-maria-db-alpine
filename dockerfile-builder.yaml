@@ -134,6 +134,7 @@ test:
         - TEST_CONTAINER_MAIN_ID=$(
             docker run
               -d --name=$TEST_CONTAINER_NAME
+              -p ${TEST_HOST_PORT}:${TEST_CONTAINER_PORTS_MAIN}
               ${BUILD_USER}/${BUILD_NAME}:${BUILD_VERSION}
           )
         - TEST_CONDITION="docker exec $TEST_CONTAINER_MAIN_ID docker-rediness-test"
@@ -152,6 +153,6 @@ test:
             fi;
             echo "Try $c failed"; 
             sleep ${SECONDS_BETWEEN_TRIES}; 
-          done && echo "### Test Succeeded\n"
+          done && echo "### Container ready \n"
         - echo "SHOW DATABASES;" | mysql -u${CONFIG_MARIADB_DEFAULT_USER} -p${CONFIG_MARIADB_DEFAULT_PASS} ${CONFIG_MARIADB_DEFAULT_DB_NAME}
 
