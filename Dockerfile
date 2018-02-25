@@ -57,11 +57,17 @@ ENV \
 	CONFIG_MARIADB_DEFAULT_PASS="defaultUserPass" \
 	CONFIG_MARIADB_DEFAULT_DB_NAME="defaultDbName" \
 	CONFIG_MARIADB_DEFAULT_DB_ENCODING="utf8mb4_unicode_ci"
+ADD imports/bin/docker-config /usr/local/bin/docker-config
+ADD imports/bin/docker-run /usr/local/bin/docker-run
+ADD imports/bin/docker-rediness-test /usr/local/bin/docker-rediness-test
+ADD imports/bin/docker-liveness-test /usr/local/bin/docker-liveness-test
+ADD imports/bin/setup /usr/local/bin/setup/1519569942
+ADD imports/bin/config /usr/local/bin/config/1519569942
 
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1519569473 1>/dev/stdout 2>/dev/stderr
+    /usr/local/bin/setup/1519569942 1>/dev/stdout 2>/dev/stderr
 
 EXPOSE 3306 
 
