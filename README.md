@@ -9,6 +9,7 @@ MariaDB service on alpine distro
 | Prd image | [![](https://images.microbadger.com/badges/image/alphasocket/mariad-db-alpine:latest.svg)](https://microbadger.com/images/alphasocket/mariad-db-alpine:latest ) | [![](https://images.microbadger.com/badges/version/alphasocket/mariad-db-alpine:latest.svg)](https://microbadger.com/images/alphasocket/mariad-db-alpine:latest) |
 
 ## Branches & Versions
+- latest
 
 
 ## Packages installed
