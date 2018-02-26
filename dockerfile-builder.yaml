@@ -154,5 +154,5 @@ test:
             echo "Try $c failed"; 
             sleep ${SECONDS_BETWEEN_TRIES}; 
           done && echo "### Container ready \n"
-        - echo "SHOW DATABASES;" | mysql -u${CONFIG_MARIADB_DEFAULT_USER} -p${CONFIG_MARIADB_DEFAULT_PASS} -h127.0.0.1 ${CONFIG_MARIADB_DEFAULT_DB_NAME}
+        - echo "SHOW DATABASES;" | mysql -u${CONFIG_MARIADB_DEFAULT_USER} -p${CONFIG_MARIADB_DEFAULT_PASS} -h127.0.0.1 --port=${TEST_HOST_PORT} ${CONFIG_MARIADB_DEFAULT_DB_NAME}
 
