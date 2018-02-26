@@ -9,9 +9,9 @@ if [ "$CONTAINER_STATUS" != 'ready' ]; then
     exit 1;
 fi
 
-if [ -z "true" ]; then
+if [ -z "mysqladmin ping -h127.0.0.1" ]; then
     exit 1;
 fi
 
-sh -c "true"
+sh -c "mysqladmin ping -h127.0.0.1"
 exit $?

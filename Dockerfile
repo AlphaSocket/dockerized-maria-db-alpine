@@ -36,7 +36,6 @@ ENV \
 	SETUP_DEPENDENCIES_SETUP="" \
 	SETUP_DEPENDENCIES_CONFIG="" \
 	SETUP_DEPENDENCIES_RUNTIME="mariadb mariadb-client tzdata" \
-	CONFIG_REDINESS_TEST="true" \
 	CONFIG_LIVENESS_TEST="true" \
 	CONFIG_GROUPS_ADDITIONAL_ID="1001" \
 	CONFIG_GROUPS_ADDITIONAL_NAME="" \
@@ -59,19 +58,20 @@ ENV \
 	CONFIG_MARIADB_DEFAULT_PASS="defaultUserPass" \
 	CONFIG_MARIADB_DEFAULT_DB_NAME="defaultDbName" \
 	CONFIG_MARIADB_DEFAULT_DB_CHARSET="utf8mb4" \
-	CONFIG_MARIADB_DEFAULT_DB_ENCODING="utf8mb4_unicode_ci"
+	CONFIG_MARIADB_DEFAULT_DB_ENCODING="utf8mb4_unicode_ci" \
+	CONFIG_REDINESS_TEST="mysqladmin ping -h127.0.0.1"
 ADD imports/bin/docker-config /usr/local/bin/docker-config
 ADD imports/bin/docker-run /usr/local/bin/docker-run
 ADD imports/bin/docker-rediness-test /usr/local/bin/docker-rediness-test
 ADD imports/bin/docker-liveness-test /usr/local/bin/docker-liveness-test
-ADD imports/bin/setup /usr/local/bin/setup/1519603703
-ADD imports/bin/config /usr/local/bin/config/1519603703
+ADD imports/bin/setup /usr/local/bin/setup/1519604302
+ADD imports/bin/config /usr/local/bin/config/1519604302
 ADD imports/templates/init.sql /usr/local/templates/init.sql
 
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1519603703 1>/dev/stdout 2>/dev/stderr
+    /usr/local/bin/setup/1519604302 1>/dev/stdout 2>/dev/stderr
 
 EXPOSE 3306 
 
