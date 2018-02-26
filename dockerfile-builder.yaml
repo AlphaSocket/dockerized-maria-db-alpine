@@ -1,6 +1,6 @@
 project: 
   title: &project_title alphasocket/dockerized-maria-db-alpine
-  codename: &project_codename mariad-db-alpine
+  codename: &project_codename maria-db-alpine
   description: MariaDB service on alpine distro
 #
 # Build process
