@@ -19,12 +19,12 @@ ENV \
 	GENERAL_KEYS_PRD="prd" \
 	BUILD_USER="03192859189254" \
 	BUILD_REGISTRY="docker.io" \
-	BUILD_REPO="https://github.com/alphaSocket/dockerized-mariad-db-alpine" \
+	BUILD_REPO="https://github.com/alphaSocket/dockerized-maria-db-alpine" \
 	BUILD_BRANCH="latest" \
 	BUILD_VERSION="latest" \
 	BUILD_ENV="prd" \
 	BUILD_FROM="alpine:latest" \
-	BUILD_NAME="mariad-db-alpine" \
+	BUILD_NAME="maria-db-alpine" \
 	BUILD_MARIADB_PORT="3306" \
 	BUILD_PORTS_ADDITIONAL="" \
 	BUILD_PORTS_MAIN="3306" \
@@ -64,14 +64,14 @@ ADD imports/bin/docker-config /usr/local/bin/docker-config
 ADD imports/bin/docker-run /usr/local/bin/docker-run
 ADD imports/bin/docker-rediness-test /usr/local/bin/docker-rediness-test
 ADD imports/bin/docker-liveness-test /usr/local/bin/docker-liveness-test
-ADD imports/bin/setup /usr/local/bin/setup/1519604302
-ADD imports/bin/config /usr/local/bin/config/1519604302
+ADD imports/bin/setup /usr/local/bin/setup/1519605012
+ADD imports/bin/config /usr/local/bin/config/1519605012
 ADD imports/templates/init.sql /usr/local/templates/init.sql
 
 
 RUN chmod +x -R /usr/local/bin && \
     sync && \
-    /usr/local/bin/setup/1519604302 1>/dev/stdout 2>/dev/stderr
+    /usr/local/bin/setup/1519605012 1>/dev/stdout 2>/dev/stderr
 
 EXPOSE 3306 
 
@@ -81,4 +81,4 @@ CMD ["/usr/local/bin/docker-run"]
 
 LABEL \
     org.label-schema.vcs-ref="$BUILD_COMMIT" \
-    org.label-schema.vcs-url="https://github.com/alphaSocket/dockerized-mariad-db-alpine"
+    org.label-schema.vcs-url="https://github.com/alphaSocket/dockerized-maria-db-alpine"

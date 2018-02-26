@@ -1,12 +1,12 @@
 # alphasocket/dockerized-maria-db-alpine
-#### mariad-db-alpine
+#### maria-db-alpine
 MariaDB service on alpine distro
 
 
-| [![Build Status](https://semaphoreci.com/api/v1/alphasocket/dockerized-mariad-db-alpine/branches/latest/badge.svg)](https://semaphoreci.com/alphasocket/dockerized-mariad-db-alpine) | Size / Layers | Version |
+| [![Build Status](https://semaphoreci.com/api/v1/alphasocket/dockerized-maria-db-alpine/branches/latest/badge.svg)](https://semaphoreci.com/alphasocket/dockerized-maria-db-alpine) | Size / Layers | Version |
 | ----- | ----- | ----- |
-| Dev image | [![](https://images.microbadger.com/badges/image/03192859189254/dockerized-mariad-db-alpine:latest.svg)](https://microbadger.com/images/03192859189254/mariad-db-alpine:latest ) | [![](https://images.microbadger.com/badges/version/03192859189254/dockerized-mariad-db-alpine:latest.svg)](https://microbadger.com/images/03192859189254/mariad-db-alpine:latest) |
-| Prd image | [![](https://images.microbadger.com/badges/image/alphasocket/mariad-db-alpine:latest.svg)](https://microbadger.com/images/alphasocket/mariad-db-alpine:latest ) | [![](https://images.microbadger.com/badges/version/alphasocket/mariad-db-alpine:latest.svg)](https://microbadger.com/images/alphasocket/mariad-db-alpine:latest) |
+| Dev image | [![](https://images.microbadger.com/badges/image/03192859189254/dockerized-maria-db-alpine:latest.svg)](https://microbadger.com/images/03192859189254/maria-db-alpine:latest ) | [![](https://images.microbadger.com/badges/version/03192859189254/dockerized-maria-db-alpine:latest.svg)](https://microbadger.com/images/03192859189254/maria-db-alpine:latest) |
+| Prd image | [![](https://images.microbadger.com/badges/image/alphasocket/maria-db-alpine:latest.svg)](https://microbadger.com/images/alphasocket/maria-db-alpine:latest ) | [![](https://images.microbadger.com/badges/version/alphasocket/maria-db-alpine:latest.svg)](https://microbadger.com/images/alphasocket/maria-db-alpine:latest) |
 
 ## Branches & Versions
 - latest

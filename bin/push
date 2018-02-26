@@ -31,12 +31,12 @@ fi
 #
 # RE-TAG the dev image to prd usr
 #
-docker tag 03192859189254/mariad-db-alpine:latest \
-    alphasocket/mariad-db-alpine:latest;
+docker tag 03192859189254/maria-db-alpine:latest \
+    alphasocket/maria-db-alpine:latest;
 
 #
 # PUSH
 #
 echo "#\n# Pushing image\n#\n"
-docker push docker.io/alphasocket/mariad-db-alpine:latest;
+docker push docker.io/alphasocket/maria-db-alpine:latest;
 exit $?

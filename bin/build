@@ -15,6 +15,6 @@ if [ "$DOCKER" = '' ]; then
 fi
 
 echo "#\n# Building image\n#\n"
-docker build --no-cache -t 03192859189254/mariad-db-alpine:latest --build-arg BUILD_COMMIT=$(git rev-parse HEAD) --build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")  .
+docker build --no-cache -t 03192859189254/maria-db-alpine:latest --build-arg BUILD_COMMIT=$(git rev-parse HEAD) --build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")  .
 
 exit $?
